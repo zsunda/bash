@@ -1,1 +1,1 @@
-This script uses ticker.sh and retrieve shares' price information from 3 major groups and let you to update your XLSX downloaded from dividend radar to be able to make decisions based on actual share prices.
+This script uses ticker.sh and retrieves shares' price information from 3 major groups and let you to update your XLSX downloaded from dividend radar to be able to make decisions based on actual share prices.
