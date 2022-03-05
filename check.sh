@@ -26,8 +26,7 @@ func_champ() {
 				if [[ $NUMCHAMP -eq $TICKCHAMP ]]
 			        then
 			        	#EU-ban a tizedesjegyeket vesszovel irjuk, nem ponttal
-			        	cat $PCHAMP | tr "." "," > $PCHAMP.new
-			        	rm $PCHAMP && mv $PCHAMP.new $PCHAMP
+			        	sed -i 's/\./\,/g' $PCHAMP
 			        	echo "A champions lista keszitese elkeszult."
 				else
 					echo "A tickerek darabszama nem egyezik a keszitett arak darabszamaval! Csekkold a ticker fajlt, hogy van-e olyan ticker, aminek a neveben pont van es helyettesitsd kotojellel vagy hagyd el!"
@@ -52,8 +51,7 @@ func_contd () {
 			      	if [[ $NUMCONTD -eq $TICKCONTD ]]
 				then
 	    				#EU-ban a tizedesjegyeket vesszovel irjuk, nem ponttal
-					cat $PCONTD | tr "." "," > $PCONTD.new
-			    		rm $PCONTD && mv $PCONTD.new $PCONTD
+			        	sed -i 's/\./\,/g' $PCONTD
 			    		echo "A contenders lista keszitese elkeszult."
 			    	else
 			    		echo "A tickerek darabszama nem egyezik a keszitett arak darabszamaval! Csekkold a ticker fajlt, hogy van-e olyan ticker, aminek a neveben pont van es helyettesitsd kotojellel vagy hagyd el!"
@@ -70,16 +68,15 @@ func_chall () {
 			then
 			    	sed -i 's/\./\-/g' $TCHALL
 				echo "Challengers lista keszitese folyamatban..."
-				NO_COLOR=1 ./ticker.sh $(cat $TCHALL) | awk '{ print $2 }' > $PCONTD
-				NUMCHALL=$(cat $PCONTD | wc -l)
+				NO_COLOR=1 ./ticker.sh $(cat $TCHALL) | awk '{ print $2 }' > $PCHALL
+				NUMCHALL=$(cat $PCHALL | wc -l)
 				TICKCHALL=$(cat $TCHALL | wc -l)
 				echo "Ticker darabszama: $TICKCHALL"
 				echo "Keszitett arak darabszama: $NUMCHALL"
 			       	if [[ $NUMCHALL -eq $TICKCHALL ]]
 				then
 					#EU-ban a tizedesjegyeket vesszovel irjuk, nem ponttal
-			    		cat $PCONTD | tr "." "," > $PCONTD.new
-			    		rm $PCONTD && mv $PCONTD.new $PCONTD
+			        	sed -i 's/\./\,/g' $PCHALL
 			    		echo "A challengers lista keszitese elkeszult."
 		       		 else
 		       			echo "A tickerek darabszama nem egyezik a keszitett arak darabszamaval! Csekkold a ticker fajlt, hogy van-e olyan ticker, aminek a neveben pont van es helyettesitsd kotojellel vagy hagyd el!"
@@ -117,7 +114,7 @@ do
 	    ;;
 
         *)
-            echo "Ervenytelen valasztas: $REPLY"
+            echo "Ervenytelen valasztas: $REPLY. Valassz masikat!"
         ;;
 
     esac
