@@ -12,7 +12,7 @@ then
 	echo
 	echo "ticker.sh not exists, downloading it from GitHub..."
 	echo
-	wget -q https://github.com/pstadler/ticker.sh/blob/master/ticker.sh && echo "Download is done"
+	wget -q https://raw.githubusercontent.com/pstadler/ticker.sh/e6b57a34c07dd1fb5c89bac5baf97e502a08c2b3/ticker.sh && echo "Download is done"
 	if [ ! -s ticker.sh ]
 	then
 		echo
