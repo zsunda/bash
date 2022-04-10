@@ -14,6 +14,7 @@ then
 	echo
 	wget -q https://github.com/pstadler/ticker.sh/blob/master/ticker.sh && echo "Download is done"
 	if [ ! -s ticker.sh ]
+	then
 		echo
 		echo "Download has failed. Check your internet connection!"
 		echo
