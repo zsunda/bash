@@ -2,10 +2,30 @@
 
 #A script celja az, hogy az osztalek-portfolio kivalasztasahoz aktualizalja 3 nagy csoportban levo reszvenyekhez
 #tartozo tickerek arat, ami igy bemasolhato a letoltott XLSX-be es elvegezheto rajta a szures.
-echo ""
-echo "Valassz, hogy melyik listat szeretned elkeszittetni!"
-PS3='Valaszod: '
-echo ""
+
+#
+# basic checks
+#
+
+if [ ! -s ticker.sh ]
+then
+	echo
+	echo "ticker.sh not exists, downloading it from GitHub..."
+	echo
+	wget -q https://github.com/pstadler/ticker.sh/blob/master/ticker.sh && echo "Download is done"
+	if [ ! -s ticker.sh ]
+		echo
+		echo "Download has failed. Check your internet connection!"
+		echo
+		exit 1
+	fi
+	chmod u+x ticker.sh
+fi
+
+#
+# defining variables
+#
+
 TCHAMP="ticker-champions"
 PCHAMP="price-champions"
 TCHALL="ticker-challengers"
@@ -13,109 +33,125 @@ PCHALL="price-challengers"
 TCONTD="ticker-contenders"
 PCONTD="price-contenders"
 
-func_champ() {
+#
+# defining functions
+#
+
+
+func_champ () {
 			if [[ -s $TCHAMP ]]
 			then
-     				echo "Champions lista keszitese folyamatban..."
-			    	sed -i 's/\./\-/g' $TCHAMP && sed -i 's/ARTN-A/ARTNA/' $TCHAMP
+				echo "Creating Champions' price list..."
+				sed -i 's/\./\-/g' $TCHAMP && sed -i 's/ARTN-A/ARTNA/' $TCHAMP
 				NO_COLOR=1 ./ticker.sh $(cat $TCHAMP) | awk '{ print $2 }' > $PCHAMP
-			   	NUMCHAMP=$(cat $PCHAMP | wc -l)
+				NUMCHAMP=$(cat $PCHAMP | wc -l)
 				TICKCHAMP=$(cat $TCHAMP | wc -l)
-			    	echo "Ticker darabszama: $TICKCHAMP"
-			    	echo "Keszitett arak darabszama: $NUMCHAMP"
+				echo "Sum of tickers: $TICKCHAMP"
+				echo "Sum of retrieved prices: $NUMCHAMP"
 				if [[ $NUMCHAMP -eq $TICKCHAMP ]]
-			        then
-			        	#EU-ban a tizedesjegyeket vesszovel irjuk, nem ponttal
-			        	sed -i 's/\./\,/g' $PCHAMP
-			        	echo "A champions lista keszitese elkeszult."
+				then
+					#in EU decimal-points are written with dot, not with comma
+					sed -i 's/\./\,/g' $PCHAMP
+					echo "Creating Champions' price list is done."
 				else
-					echo "A tickerek darabszama nem egyezik a keszitett arak darabszamaval! Csekkold a ticker fajlt, hogy van-e olyan ticker, aminek a neveben pont van es helyettesitsd kotojellel vagy hagyd el!"
-			    		exit 1
-			    	fi
+					echo "Sum of tickers and of retrieved prices are not equal! Check your ticker file whether ther are any ticker in whose name is a dot dot and replace it with a hyphen or omit it!"
+					exit 2
+				fi
 			else
-				echo "A $TCHAMP nevu fajl nem letezik!"
-				exit 2
+				echo "File $TCHAMP not exists!"
+				exit 3
 			fi
 		}
 
 func_contd () {
 			if [[ -s $TCONTD ]]
 			then
-			    	sed -i 's/\./\-/g' $TCONTD && sed -i 's/CMCS-A/CMCSA/' $TCONTD
-				echo "Contenders lista keszitese folyamatban..."
+				sed -i 's/\./\-/g' $TCONTD && sed -i 's/CMCS-A/CMCSA/' $TCONTD
+				echo "Creating Contenders' price list..."
 				NO_COLOR=1 ./ticker.sh $(cat $TCONTD) | awk '{ print $2 }' > $PCONTD
 				NUMCONTD=$(cat $PCONTD | wc -l)
 				TICKCONTD=$(cat $TCONTD | wc -l)
-				echo "Ticker darabszama: $TICKCONTD"
-				echo "Keszitett arak darabszama: $NUMCONTD"
-			      	if [[ $NUMCONTD -eq $TICKCONTD ]]
+				echo "Sum of tickers: $TICKCONTD"
+				echo "Sum of retrieved prices: $NUMCONTD"
+				if [[ $NUMCONTD -eq $TICKCONTD ]]
 				then
 	    				#EU-ban a tizedesjegyeket vesszovel irjuk, nem ponttal
 			        	sed -i 's/\./\,/g' $PCONTD
-			    		echo "A contenders lista keszitese elkeszult."
+			    		echo "Creating Contenders' price list is done."
 			    	else
-			    		echo "A tickerek darabszama nem egyezik a keszitett arak darabszamaval! Csekkold a ticker fajlt, hogy van-e olyan ticker, aminek a neveben pont van es helyettesitsd kotojellel vagy hagyd el!"
-		    			exit 1
+					echo "Sum of tickers and of retrieved prices are not equal! Check your ticker file whether ther are any ticker in whose name is a dot dot and replace it with a hyphen or omit it!"
+		    			exit 4
 			        fi
 			else
-				echo "A $TCONTD nevu fajl nem letezik!"
-				exit 2
+				echo "File $TCONTD not exists!"
+				exit 5
 			fi
 		}
 
 func_chall () {
 			if [[ -s $TCHALL ]]
 			then
-			    	sed -i 's/\./\-/g' $TCHALL
-				echo "Challengers lista keszitese folyamatban..."
+				sed -i 's/\./\-/g' $TCHALL
+				echo "Creating Challengers' price list..."
 				NO_COLOR=1 ./ticker.sh $(cat $TCHALL) | awk '{ print $2 }' > $PCHALL
 				NUMCHALL=$(cat $PCHALL | wc -l)
 				TICKCHALL=$(cat $TCHALL | wc -l)
-				echo "Ticker darabszama: $TICKCHALL"
-				echo "Keszitett arak darabszama: $NUMCHALL"
-			       	if [[ $NUMCHALL -eq $TICKCHALL ]]
+				echo "Sum of tickers: $TICKCHALL"
+				echo "Sum of retrieved prices: $NUMCHALL"
+				if [[ $NUMCHALL -eq $TICKCHALL ]]
 				then
 					#EU-ban a tizedesjegyeket vesszovel irjuk, nem ponttal
-			        	sed -i 's/\./\,/g' $PCHALL
-			    		echo "A challengers lista keszitese elkeszult."
+			       		sed -i 's/\./\,/g' $PCHALL
+			    		echo "Creating challengers' price list is done."
 		       		 else
 		       			echo "A tickerek darabszama nem egyezik a keszitett arak darabszamaval! Csekkold a ticker fajlt, hogy van-e olyan ticker, aminek a neveben pont van es helyettesitsd kotojellel vagy hagyd el!"
-		    			exit 1
+		    			exit 6
 		       		 fi
 			else
-				echo "A $TCHALL nevu fajl nem letezik!"
-				exit 2
+				echo "File $TCHALL not exists!"
+				exit 7
 			fi
 		}
 
-select opt in champions contenders challengers osszes
+#
+# main routine
+#
+
+echo
+echo "Choose which list to make!"
+PS3='Your choice: '
+
+select opt in champions contenders challengers all
 do
-    case $opt in
-        champions)
-    		func_champ
-	    	break
-        ;;
+	case $opt in
 
-        contenders)
-    		func_contd
-	    	break
-        ;;
+		champions)
+			func_champ
+			break
+			;;
 
-        challengers)
-		func_chall
-	    	break
-        ;;
+		contenders)
+			func_contd
+			break
+			;;
 
-	osszes)
-	    	func_champ
-	    	func_contd
-	    	func_chall
-	        break
-	    ;;
+		challengers)
+			func_chall
+			break
+			;;
 
-        *)
-            echo "Ervenytelen valasztas: $REPLY. Valassz masikat!"
-        ;;
+		all)
+			func_champ
+			func_contd
+			func_chall
+			break
+			;;
 
-    esac
+		*)
+			echo
+			echo "Invalid choice: $REPLY. Choose another!"
+			echo
+			;;
+
+	esac
 done
